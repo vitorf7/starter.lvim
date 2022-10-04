@@ -24,7 +24,29 @@ lvim.builtin.treesitter.highlight.enable = true
 
 -- ======================================= LSP Section ==============================================
 -- Will override the LSP formatting capabilities if any exist
+local lsp_manager = require "lvim.lsp.manager"
+lsp_manager.setup("intelephense")
+lsp_manager.setup("phpactor")
 
+-- More information on how to install the debug adapter
+-- https://github.com/mfussenegger/nvim-dap/wiki/Debug-Adapter-installation#PHP
+local debugger_install_path = os.getenv("HOME") .. "/Code/vscode-php-debug/" -- Change this line to be the path you installed the debugger
+lvim.builtin.dap.on_config_done = function(dap)
+  dap.adapters.php = {
+    type = 'executable',
+    command = 'node',
+    args = { debugger_install_path .. 'out/phpDebug.js' }
+  }
+
+  dap.configurations.php = {
+    {
+      type = 'php',
+      request = 'launch',
+      name = 'Listen for Xdebug',
+      port = 9000
+    }
+  }
+end
 
 -- ======================================= Dap Section ==============================================
 lvim.builtin.dap.active = true
@@ -38,10 +60,4 @@ lvim.plugins = {
 }
 
 
--- ================================= Go IDE Specific Section ========================================
-GOIDE_CONFIG = {
-  rayx_gonvim = true,
-  rayx_gonvim_format_on_save = true
-}
-local goide = require("user.goide")
-goide.start()
+-- ================================= PHP IDE Specific Section ========================================
