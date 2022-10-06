@@ -12,52 +12,52 @@ lvim.builtin.nvimtree.setup.view.side = "left"
 lvim.builtin.nvimtree.setup.renderer.icons.show.git = false
 lvim.builtin.breadcrumbs.active = true
 
-
 -- =================================== Treesitter Section ===========================================
 lvim.builtin.treesitter.ensure_installed = {
-  "go",
+	"php",
 }
 
-lvim.builtin.treesitter.ignore_install = { "haskell" }
 lvim.builtin.treesitter.highlight.enable = true
-
 
 -- ======================================= LSP Section ==============================================
 -- Will override the LSP formatting capabilities if any exist
-local lsp_manager = require "lvim.lsp.manager"
+local lsp_manager = require("lvim.lsp.manager")
 lsp_manager.setup("intelephense")
-lsp_manager.setup("phpactor")
 
 -- More information on how to install the debug adapter
 -- https://github.com/mfussenegger/nvim-dap/wiki/Debug-Adapter-installation#PHP
-local debugger_install_path = os.getenv("HOME") .. "/Code/vscode-php-debug/" -- Change this line to be the path you installed the debugger
-lvim.builtin.dap.on_config_done = function(dap)
-  dap.adapters.php = {
-    type = 'executable',
-    command = 'node',
-    args = { debugger_install_path .. 'out/phpDebug.js' }
-  }
-
-  dap.configurations.php = {
-    {
-      type = 'php',
-      request = 'launch',
-      name = 'Listen for Xdebug',
-      port = 9000
-    }
-  }
-end
+local dap = require("dap")
+local mason_path = vim.fn.glob(vim.fn.stdpath("data") .. "/mason/")
+dap.adapters.php = {
+	type = "executable",
+	command = "node",
+	args = { mason_path .. "packages/php-debug-adapter/extension/out/phpDebug.js" },
+}
+dap.configurations.php = {
+	{
+		type = "php",
+		request = "launch",
+		name = "Listen for Xdebug",
+		port = 9000,
+	},
+}
 
 -- ======================================= Dap Section ==============================================
 lvim.builtin.dap.active = true
 
-require("user.dapui")
-
-
--- ===================================== Plugins Section ============================================
-lvim.plugins = {
-  "rcarriga/nvim-dap-ui",
+-- Key Maps
+lvim.builtin.which_key.vmappings["L"] = {
+	name = "Debug",
+	b = { "<cmd>lua require'dap'.toggle_breakpoint()<cr>", "Breakpoint" },
+	c = { "<cmd>lua require'dap'.continue()<cr>", "Continue" },
+	i = { "<cmd>lua require'dap'.step_into()<cr>", "Into" },
+	o = { "<cmd>lua require'dap'.step_over()<cr>", "Over" },
+	O = { "<cmd>lua require'dap'.step_out()<cr>", "Out" },
+	r = { "<cmd>lua require'dap'.repl.toggle()<cr>", "Repl" },
+	l = { "<cmd>lua require'dap'.run_last()<cr>", "Last" },
+	u = { "<cmd>lua require'dapui'.toggle()<cr>", "UI" },
+	x = { "<cmd>lua require'dap'.terminate()<cr>", "Exit" },
 }
 
-
--- ================================= PHP IDE Specific Section ========================================
+-- ===================================== Plugins Section ============================================
+lvim.plugins = {}
